@@ -1,0 +1,32 @@
+<div class="session-header">
+    <div class="session-info">
+        <h2 id="currentSessionKey">{{.Meta.Key}}</h2>
+        <p id="currentSessionSummary">{{if .Meta.Summary}}{{.Meta.Summary}}{{else}}No summary{{end}}</p>
+    </div>
+    <div class="session-actions" style="display: flex; gap: 0.5rem; align-items: center;">
+        <label style="font-size: 0.8rem; color: var(--text-secondary); display: flex; align-items: center; gap: 0.25rem; cursor: pointer;">
+            <input type="checkbox" id="autoRefreshCheck" onchange="toggleAutoRefresh(this.checked)"> Auto-refresh
+        </label>
+        <button class="secondary" onclick="loadSession('{{.Meta.Key}}')" title="Refresh Content">↻ Refresh</button>
+        <button class="danger" onclick="deleteSession('{{.Meta.Key}}')">Delete Session</button>
+    </div>
+</div>
+<div class="message-list">
+    {{range $index, $msg := .Messages}}
+    <div class="message-item {{$msg.Role}}" id="msg-{{$index}}">
+        <span class="message-role {{$msg.Role}}">{{$msg.Role}}</span>
+        <div class="message-actions">
+            <button class="secondary" onclick="editMessage({{$index}})">Edit</button>
+            <button class="danger" onclick="deleteMessage({{$index}})">Delete</button>
+        </div>
+        <div class="message-content" id="content-{{$index}}">{{$msg.Content}}</div>
+        <div class="edit-container" id="edit-{{$index}}" style="display: none;">
+            <textarea id="textarea-{{$index}}" rows="5">{{$msg.Content}}</textarea>
+            <div style="margin-top: 0.5rem; display: flex; gap: 0.5rem;">
+                <button onclick="saveMessage({{$index}})">Save</button>
+                <button class="secondary" onclick="cancelEdit({{$index}})">Cancel</button>
+            </div>
+        </div>
+    </div>
+    {{end}}
+</div>

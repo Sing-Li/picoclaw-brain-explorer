@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PicoClaw Session Explorer</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                    <h1>PicoClaw Sessions</h1>
+                    <button class="secondary" onclick="window.location.reload()" title="Refresh List">↻</button>
+                </div>
+                <input type="text" id="searchInput" placeholder="Search sessions..." class="search-input" onkeyup="filterSessions()">
+            </div>
+            <ul class="session-list" id="sessionList">
+                {{range .Sessions}}
+                <li class="session-item" data-key="{{.Key}}" data-summary="{{.Summary}}" onclick="loadSession('{{.Key}}')">
+                    <span class="key">{{.Key}}</span>
+                    <span class="summary">{{if .Summary}}{{.Summary}}{{else}}No summary{{end}}</span>
+                    <span class="date">{{.UpdatedAt.Format "Jan 02, 2006 15:04:05"}}</span>
+                </li>
+                {{end}}
+            </ul>
+        </div>
+        <div class="main-content" id="mainContent">
+            <div class="empty-state">
+                <h2>Select a session to view its messages</h2>
+            </div>
+        </div>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
