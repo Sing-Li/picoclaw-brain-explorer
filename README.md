@@ -44,9 +44,13 @@ go run main.go handlers.go
 ```
 
 ## Roadmap
-- Add Media explorer/manager
+- Add media explorer/manager
 - Add cron explorer/editor
 - Add memory.md explorer/editor
 - Add heartbeat.md explorer/editor
 - Add soul.md explorer/editor
-- Add semantics layer that "knows" how "this brain works"
+- Add skills explorer/creator/editor
+- Add mcp explorer/manager
+- Add semantics layer that "knows" how "this brain works": a "live" bi-directional cross referenced overlay between logged events (including LLM queries) and all the above pieces that are observable 
+
+
