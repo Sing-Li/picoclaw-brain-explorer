@@ -1,6 +1,12 @@
 # PicoClaw Brain Explorer 
 ### (standalone native golang debugging/learning tool)
-
+<p>
+  <img src="https://shields.ai4allof.us/badge/Go-1.25+-00ADD8?style=flat&logo=go&logoColor=white" alt="Go"/>
+<img src="https://shields.ai4allof.us/badge/build-passing-brightgreen?style=for-the-badge" />
+  <img src="https://shields.ai4allof.us/badge/license-MIT-green" alt="License">
+  <br>
+  <img src="https://shields.ai4allof.us/badge/VIBE CODE-ENCOURAGED%25-orange" alt="Vibecode Encouraged" />
+</p>
 Stateful long running agents framework are still crafted art rather than coding science.  One often find the agents doing surprising things or locking up or aborting for apparently no reasons.   It really helps when you can take a look "inside" picoclaw's brain to see what exactly is going on at any time.  This tool aims to do exactly that.  First revision gives you real-time viewi and access into the short term memory within the sessions.
 
 <img width="1328" height="815" alt="Screenshot 2026-05-09 at 8 53 19 PM" src="https://github.com/user-attachments/assets/6726c3da-5545-4250-b4c8-09ad42b3fb2c" />
