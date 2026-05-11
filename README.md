@@ -2,10 +2,11 @@
 ### (standalone native golang debugging/learning tool)
 <p>
   <img src="https://shields.ai4allof.us/badge/Go-1.25+-00ADD8?style=flat&logo=go&logoColor=white" alt="Go"/>
-<img src="https://shields.ai4allof.us/badge/build-passing-brightgreen?style=for-the-badge" />
+  <img src="https://shields.ai4allof.us/badge/vibecode-encouraged-orange" alt="Vibecode Encouraged" />
+
   <img src="https://shields.ai4allof.us/badge/license-MIT-green" alt="License">
   <br>
-  <img src="https://shields.ai4allof.us/badge/VIBE CODE-ENCOURAGED%25-orange" alt="Vibecode Encouraged" />
+  
 </p>
 Stateful long running agents framework are still crafted art rather than coding science.  One often find the agents doing surprising things or locking up or aborting for apparently no reasons.   It really helps when you can take a look "inside" picoclaw's brain to see what exactly is going on at any time.  This tool aims to do exactly that.  First revision gives you real-time viewi and access into the short term memory within the sessions.
 
