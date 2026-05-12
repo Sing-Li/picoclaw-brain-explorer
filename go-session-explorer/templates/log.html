@@ -1,0 +1,35 @@
+<div class="session-header">
+    <div class="session-info">
+        <h2>Log: {{.Name}}</h2>
+        <p>File view</p>
+    </div>
+    <div class="session-actions">
+        <button class="secondary" onclick="loadLog('{{.Name}}')" title="Refresh Log">↻ Refresh</button>
+    </div>
+</div>
+<div class="log-entries">
+    {{range .Entries}}
+    <div class="log-entry {{if .IsJSON}}json-log{{else}}raw-log{{end}}">
+        {{if .IsJSON}}
+            <div class="log-meta">
+                <span class="log-level {{index .Data "level"}}">{{index .Data "level"}}</span>
+                <span class="log-time">{{index .Data "time"}}</span>
+                <span class="log-component">[{{index .Data "component"}}]</span>
+            </div>
+            <div class="log-message">{{index .Data "message"}}</div>
+            <div class="log-details">
+                {{range $k, $v := .Data}}
+                    {{if and (ne $k "level") (and (ne $k "time") (and (ne $k "component") (ne $k "message")))}}
+                    <div class="log-field">
+                        <span class="field-key">{{$k}}:</span>
+                        <span class="field-value">{{$v}}</span>
+                    </div>
+                    {{end}}
+                {{end}}
+            </div>
+        {{else}}
+            <pre class="raw-line">{{.Raw}}</pre>
+        {{end}}
+    </div>
+    {{end}}
+</div>

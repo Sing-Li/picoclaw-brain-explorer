@@ -11,6 +11,7 @@ import (
 	"strings"
 	"time"
 
+	"bufio"
 	"html/template"
 
 	"github.com/sipeed/picoclaw/pkg/memory"
@@ -36,14 +37,27 @@ type Session struct {
 var (
 	indexTmpl   *template.Template
 	sessionTmpl *template.Template
+	logTmpl     *template.Template
 )
+
+type LogFile struct {
+	Name      string
+	UpdatedAt time.Time
+}
+
+type LogEntry struct {
+	Raw    string
+	Data   map[string]interface{}
+	IsJSON bool
+}
 
 func initTemplates() {
 	indexTmpl = template.Must(template.ParseFiles("templates/index.html"))
 	sessionTmpl = template.Must(template.ParseFiles("templates/session.html"))
+	logTmpl = template.Must(template.ParseFiles("templates/log.html"))
 }
 
-func registerHandlers(mux *http.ServeMux, store *memory.JSONLStore, sessionsDir string) {
+func registerHandlers(mux *http.ServeMux, store *memory.JSONLStore, sessionsDir string, logsDir string) {
 	initTemplates()
 
 	// Serve static files
@@ -57,10 +71,13 @@ func registerHandlers(mux *http.ServeMux, store *memory.JSONLStore, sessionsDir 
 		}
 		
 		sessions := getSessionsList(sessionsDir)
+		logs := getLogsList(logsDir)
 		data := struct {
 			Sessions []SessionMeta
+			Logs     []LogFile
 		}{
 			Sessions: sessions,
+			Logs:     logs,
 		}
 		indexTmpl.Execute(w, data)
 	})
@@ -79,6 +96,30 @@ func registerHandlers(mux *http.ServeMux, store *memory.JSONLStore, sessionsDir 
 			return
 		}
 		sessionTmpl.Execute(w, session)
+	})
+
+	// Serve the log HTML fragment
+	mux.HandleFunc("/log", func(w http.ResponseWriter, r *http.Request) {
+		name := r.URL.Query().Get("name")
+		if name == "" {
+			http.Error(w, "Missing name", http.StatusBadRequest)
+			return
+		}
+		
+		logData, err := getLogData(name, logsDir)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		
+		data := struct {
+			Name    string
+			Entries []LogEntry
+		}{
+			Name:    name,
+			Entries: logData,
+		}
+		logTmpl.Execute(w, data)
 	})
 
 	mux.HandleFunc("/api/sessions", func(w http.ResponseWriter, r *http.Request) {
@@ -227,4 +268,58 @@ func handleDeleteSession(w http.ResponseWriter, r *http.Request, store *memory.J
 
 	w.Header().Set("Content-Type", "application/json")
 	json.NewEncoder(w).Encode(map[string]bool{"success": true})
+}
+
+func getLogsList(logsDir string) []LogFile {
+	files, err := os.ReadDir(logsDir)
+	if err != nil {
+		return nil
+	}
+
+	var logs []LogFile
+	for _, f := range files {
+		if !f.IsDir() && strings.HasSuffix(f.Name(), ".log") {
+			info, err := f.Info()
+			if err != nil {
+				continue
+			}
+			logs = append(logs, LogFile{
+				Name:      f.Name(),
+				UpdatedAt: info.ModTime(),
+			})
+		}
+	}
+
+	sort.Slice(logs, func(i, j int) bool {
+		return logs[i].UpdatedAt.After(logs[j].UpdatedAt)
+	})
+
+	return logs
+}
+
+func getLogData(name string, logsDir string) ([]LogEntry, error) {
+	logPath := filepath.Join(logsDir, name)
+	file, err := os.Open(logPath)
+	if err != nil {
+		return nil, err
+	}
+	defer file.Close()
+
+	var entries []LogEntry
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		line := scanner.Text()
+		entry := LogEntry{Raw: line}
+		
+		// Attempt to parse as JSON
+		var data map[string]interface{}
+		if err := json.Unmarshal([]byte(line), &data); err == nil {
+			entry.Data = data
+			entry.IsJSON = true
+		}
+		
+		entries = append(entries, entry)
+	}
+
+	return entries, scanner.Err()
 }

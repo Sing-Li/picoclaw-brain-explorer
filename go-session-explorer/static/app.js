@@ -1,21 +1,45 @@
 let currentSessionKey = null;
+let currentLogName = null;
 let autoRefreshInterval = null;
 let isEditing = false;
+let isViewingLog = false;
 
-function filterSessions() {
+function toggleAccordion(id) {
+    const item = document.getElementById(id);
+    const wasActive = item.classList.contains('active');
+    
+    // Close all
+    document.querySelectorAll('.accordion-item').forEach(el => {
+        el.classList.remove('active');
+        el.querySelector('.accordion-icon').innerText = '▸';
+    });
+
+    // Toggle current
+    if (!wasActive) {
+        item.classList.add('active');
+        item.querySelector('.accordion-icon').innerText = '▾';
+    }
+}
+
+function filterList() {
     const input = document.getElementById('searchInput');
     const filter = input.value.toLowerCase();
-    const ul = document.getElementById('sessionList');
-    const li = ul.getElementsByTagName('li');
+    
+    // Filter sessions
+    const sessionList = document.getElementById('sessionList');
+    const sessions = sessionList.getElementsByTagName('li');
+    for (let i = 0; i < sessions.length; i++) {
+        const key = sessions[i].getAttribute('data-key').toLowerCase();
+        const summary = sessions[i].getAttribute('data-summary').toLowerCase();
+        sessions[i].style.display = (key.indexOf(filter) > -1 || summary.indexOf(filter) > -1) ? "" : "none";
+    }
 
-    for (let i = 0; i < li.length; i++) {
-        const key = li[i].getAttribute('data-key').toLowerCase();
-        const summary = li[i].getAttribute('data-summary').toLowerCase();
-        if (key.indexOf(filter) > -1 || summary.indexOf(filter) > -1) {
-            li[i].style.display = "";
-        } else {
-            li[i].style.display = "none";
-        }
+    // Filter logs
+    const logList = document.getElementById('logList');
+    const logs = logList.getElementsByTagName('li');
+    for (let i = 0; i < logs.length; i++) {
+        const name = logs[i].getAttribute('data-name').toLowerCase();
+        logs[i].style.display = (name.indexOf(filter) > -1) ? "" : "none";
     }
 }
 
@@ -23,14 +47,12 @@ async function loadSession(key) {
     if (isEditing && !confirm('You have unsaved changes. Refresh anyway?')) return;
     
     currentSessionKey = key;
+    currentLogName = null;
     isEditing = false;
+    isViewingLog = false;
     
-    // Preserve auto-refresh state if element exists
-    const autoRefreshWasOn = document.getElementById('autoRefreshCheck')?.checked;
-
-    // Update active class
-    const items = document.querySelectorAll('.session-item');
-    items.forEach(item => {
+    // Update active class across all lists
+    document.querySelectorAll('.list-item').forEach(item => {
         if (item.getAttribute('data-key') === key) {
             item.classList.add('active');
         } else {
@@ -43,13 +65,37 @@ async function loadSession(key) {
         const html = await response.text();
         document.getElementById('mainContent').innerHTML = html;
         
-        // Restore auto-refresh state
-        if (autoRefreshWasOn) {
-            document.getElementById('autoRefreshCheck').checked = true;
-            startAutoRefresh();
-        }
+        // Default auto-refresh off for new load, or preserve if we wanted to
+        stopAutoRefresh();
     } catch (error) {
         console.error('Failed to load session:', error);
+    }
+}
+
+async function loadLog(name) {
+    if (isEditing && !confirm('You have unsaved changes. Refresh anyway?')) return;
+
+    currentLogName = name;
+    currentSessionKey = null;
+    isEditing = false;
+    isViewingLog = true;
+    stopAutoRefresh();
+
+    // Update active class
+    document.querySelectorAll('.list-item').forEach(item => {
+        if (item.getAttribute('data-name') === name) {
+            item.classList.add('active');
+        } else {
+            item.classList.remove('active');
+        }
+    });
+
+    try {
+        const response = await fetch(`/log?name=${encodeURIComponent(name)}`);
+        const html = await response.text();
+        document.getElementById('mainContent').innerHTML = html;
+    } catch (error) {
+        console.error('Failed to load log:', error);
     }
 }
 

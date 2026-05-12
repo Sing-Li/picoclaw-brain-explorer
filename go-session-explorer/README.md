@@ -1,0 +1,36 @@
+# Go Native PicoClaw Session Explorer
+
+A standalone Go web application to view and edit sessions created by PicoClaw. It uses `picoclaw` core packages for robust session management and native Go templates (`html/template`) for the UI, completely eliminating the need for Node.js or a separate frontend build process.
+
+## Features
+- List all PicoClaw sessions.
+- View detailed message history for each session.
+- Edit message content.
+- Delete individual messages.
+- Delete entire sessions.
+- **Zero dependencies:** No Node.js, npm, or React required. Just standard Go.
+
+## Prerequisites
+- Go 1.20+
+
+## Setup and Running
+
+1. **Start the Go Application:**
+
+The application serves both the API and the HTML templates. Run it from the `go-session-explorer` directory.
+
+```bash
+cd go-session-explorer
+go run main.go handlers.go
+```
+
+The application will start on http://localhost:3001. Open this URL in your browser.
+
+## Configuration
+By default, the application looks for sessions in `~/.picoclaw/workspace/sessions`. 
+You can override this by setting the `PICOCLAW_HOME` environment variable before running the Go app.
+
+```bash
+export PICOCLAW_HOME=/path/to/your/picoclaw/data
+go run main.go handlers.go
+```

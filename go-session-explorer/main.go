@@ -25,7 +25,12 @@ func main() {
 	}
 
 	sessionsDir := filepath.Join(picoHome, "workspace", "sessions")
+	logsDir := filepath.Join(picoHome, "logs")
 	log.Printf("Using sessions directory: %s", sessionsDir)
+	log.Printf("Using logs directory: %s", logsDir)
+
+	// Ensure logs directory exists for demonstration, though it might be empty
+	os.MkdirAll(logsDir, 0o755)
 
 	store, err := memory.NewJSONLStore(sessionsDir)
 	if err != nil {
@@ -33,7 +38,7 @@ func main() {
 	}
 
 	mux := http.NewServeMux()
-	registerHandlers(mux, store, sessionsDir)
+	registerHandlers(mux, store, sessionsDir, logsDir)
 
 	// Wrap mux with CORS middleware
 	handler := corsMiddleware(mux)
