@@ -52,6 +52,24 @@
                         </ul>
                     </div>
                 </div>
+
+                <div class="accordion-item" id="cronSection">
+                    <div class="accordion-header" onclick="toggleAccordion('cronSection')">
+                        <span>PicoClaw Cron</span>
+                        <span class="accordion-icon">▸</span>
+                    </div>
+                    <div class="accordion-content">
+                        <ul class="session-list" id="cronList">
+                            {{range .CronJobs}}
+                            <li class="list-item cron-item" data-id="{{.ID}}" data-name="{{.Name}}" onclick="loadCron('{{.ID}}')">
+                                <span class="key">{{.Name}}</span>
+                                <span class="summary">{{.Schedule.Kind}}: {{if eq .Schedule.Kind "cron"}}{{.Schedule.Expr}}{{else if eq .Schedule.Kind "every"}}{{.Schedule.EveryMS}}ms{{else}}{{formatMS .Schedule.AtMS}}{{end}}</span>
+                                <span class="date">Next: {{formatMS .State.NextRunAtMS}}</span>
+                            </li>
+                            {{end}}
+                        </ul>
+                    </div>
+                </div>
             </div>
         </div>
         <div class="main-content" id="mainContent">
